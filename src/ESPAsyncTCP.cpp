@@ -264,7 +264,14 @@ bool AsyncClient::connect(IPAddress ip, uint16_t port){
 #endif
   tcp_arg(pcb, this);
   tcp_err(pcb, &_s_error);
-  size_t err = tcp_connect(pcb, &addr, port,(tcp_connected_fn)&_s_connected);
+  err_t err = tcp_connect(pcb, &addr, port,(tcp_connected_fn)&_s_connected);
+  if (err != ERR_OK) {
+    if (tcp_close(pcb) != ERR_OK) {
+      tcp_abort(pcb);
+    }
+    pcb = NULL;
+  }
+
   return (ERR_OK == err);
 }
 
